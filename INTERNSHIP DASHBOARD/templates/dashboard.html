@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Internship Portal{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2 class="page-title">Internship Dashboard</h2>
+    <a href="/report" class="btn btn-primary"><i class="bi bi-download me-2"></i>Export Report</a>
+</div>
+
+<div class="row g-4 mb-5">
+    <!-- Stat 1 -->
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="stat-card">
+                <h5>Total Applications</h5>
+                <h2>{{ total }}</h2>
+            </div>
+        </div>
+    </div>
+    <!-- Stat 2 -->
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="stat-card">
+                <h5>Completed</h5>
+                <h2 style="color: var(--secondary);">{{ completed }}</h2>
+            </div>
+        </div>
+    </div>
+    <!-- Stat 3 -->
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="stat-card">
+                <h5>Paid Internships</h5>
+                <h2 style="color: var(--warning);">{{ paid }}</h2>
+            </div>
+        </div>
+    </div>
+    <!-- Stat 4 -->
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="stat-card">
+                <h5>Unpaid Internships</h5>
+                <h2 style="color: var(--danger);">{{ unpaid }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card p-4 h-100">
+            <h5 class="text-muted text-uppercase mb-4" style="font-size: 0.875rem; font-weight: 600;">Paid vs Unpaid</h5>
+            <div style="position: relative; height: 300px; width: 100%; display: flex; justify-content: center;">
+                <canvas id="paidChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card p-4 h-100">
+            <h5 class="text-muted text-uppercase mb-4" style="font-size: 0.875rem; font-weight: 600;">Application Modes</h5>
+            <div style="position: relative; height: 300px; width: 100%; display: flex; justify-content: center;">
+                <canvas id="modeChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'bottom', labels: { font: { family: 'Inter' } } }
+        }
+    };
+
+    new Chart(document.getElementById("paidChart"), {
+        type: "doughnut",
+        data: {
+            labels: ["Paid", "Unpaid"],
+            datasets: [{
+                data: [{{ paid }}, {{ unpaid }}],
+                backgroundColor: ['#10B981', '#EF4444'],
+                borderWidth: 0,
+                hoverOffset: 4
+            }]
+        },
+        options: commonOptions
+    });
+
+    new Chart(document.getElementById("modeChart"), {
+        type: "pie",
+        data: {
+            labels: ["Online", "Offline"],
+            datasets: [{
+                data: [{{ online }}, {{ offline }}],
+                backgroundColor: ['#4F46E5', '#F59E0B'],
+                borderWidth: 0,
+                hoverOffset: 4
+            }]
+        },
+        options: commonOptions
+    });
+});
+</script>
+{% endblock %}
