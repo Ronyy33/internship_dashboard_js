@@ -9,19 +9,26 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label>Company Name</label>
-                        <input type="text" name="company" class="form-control" placeholder="e.g. Google" required>
+                        <input type="text" name="company_name" class="form-control" placeholder="e.g. Google" required>
                     </div>
                     <div class="col-md-6">
-                        <label>Faculty Coordinator</label>
-                        <input type="text" name="faculty" class="form-control" placeholder="Faculty Name" required>
+                        <label>Domain</label>
+                        <input type="text" name="domain" class="form-control" placeholder="e.g. Web Development" required>
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <label>Eligible Branch</label>
-                        <input type="text" name="eligibility" class="form-control" placeholder="e.g. Computer Science (or 'Any')" required>
+                        <label>Contact Email / Phone</label>
+                        <input type="text" name="contact" class="form-control" placeholder="e.g. hr@google.com" required>
                     </div>
+                    <div class="col-md-6">
+                        <label>Eligible Branch</label>
+                        <input type="text" name="eligibility" class="form-control" placeholder="e.g. Computer Science (Or Any)">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
                     <div class="col-md-6">
                         <label>Duration</label>
                         <input type="text" name="duration" class="form-control" placeholder="e.g. 6 Months" required>
@@ -31,14 +38,14 @@
                 <div class="row mb-4">
                     <div class="col-md-6">
                         <label>Paid Status</label>
-                        <select name="paid" class="form-select">
+                        <select name="paid_or_unpaid" class="form-select">
                             <option value="Paid">Paid</option>
                             <option value="Unpaid">Unpaid</option>
                         </select>
                     </div>
                     <div class="col-md-6">
                         <label>Mode</label>
-                        <select name="mode" class="form-select">
+                        <select name="internship_mode" class="form-select">
                             <option value="Online">Online</option>
                             <option value="Offline">Offline</option>
                             <option value="Hybrid">Hybrid</option>
@@ -64,7 +71,7 @@
                     <thead>
                         <tr>
                             <th>Company</th>
-                            <th>Faculty</th>
+                            <th>Domain</th>
                             <th>Eligibility</th>
                             <th>Duration</th>
                             <th>Paid</th>
@@ -75,18 +82,18 @@
                     <tbody>
                         <% for(let internship of internships) { %>
                         <tr>
-                            <td class="fw-bold"><%= internship.company %></td>
-                            <td><%= internship.faculty %></td>
+                            <td class="fw-bold"><%= internship.company_name %></td>
+                            <td><%= internship.domain %></td>
                             <td><%= internship.eligibility %></td>
                             <td><%= internship.duration %></td>
                             <td>
-                                <% if (internship.paid.toLowerCase() === 'paid' || internship.paid.toLowerCase() === 'yes') { %>
+                                <% if (internship.paid_or_unpaid.toLowerCase() === 'paid') { %>
                                     <span class="badge bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill">Paid</span>
                                 <% } else { %>
                                     <span class="badge bg-danger-subtle border border-danger-subtle text-danger-emphasis rounded-pill">Unpaid</span>
                                 <% } %>
                             </td>
-                            <td><%= internship.mode %></td>
+                            <td><%= internship.internship_mode %></td>
                             <td>
                                 <form action="/delete_internship/<%= internship.id %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this internship and all related student applications?');">
                                     <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Internship">

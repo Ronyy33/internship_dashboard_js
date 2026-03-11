@@ -6,6 +6,7 @@ const fs = require('fs');
 const { createObjectCsvWriter } = require('csv-writer');
 const db = require('./database');
 const expressLayouts = require('express-ejs-layouts');
+const bcrypt = require('bcrypt');
 
 const app = express();
 const PORT = 3000;
@@ -37,15 +38,21 @@ const storage = multer.diskStorage({
         cb(null, uploadDir)
     },
     filename: function (req, file, cb) {
-        // e.g. student_X_internship_Y_filename
-        const { student_id } = req.body;
-        const internship_id = req.params.id;
+        const student_id = req.session.user ? req.session.user.id : 'unknown';
+        const internship_id = req.params.id || 'none';
         cb(null, `student_${student_id}_internship_${internship_id}_${file.originalname}`);
     }
 });
-const upload = multer({ storage: storage });
+const fileFilter = (req, file, cb) => {
+    if (file.mimetype === 'application/pdf') {
+        cb(null, true);
+    } else {
+        cb(new Error('Only PDF files are allowed!'), false);
+    }
+};
+const upload = multer({ storage: storage, fileFilter: fileFilter });
 
-// Middleware for flash messages
+// Middleware for flash messages and user context
 app.use((req, res, next) => {
     res.locals.successMsg = req.session.success || null;
     res.locals.errorMsg = req.session.error || null;
@@ -53,9 +60,31 @@ app.use((req, res, next) => {
     req.session.success = null;
     req.session.error = null;
     req.session.warning = null;
+    
+    // Add User context to all views if available
+    res.locals.user = req.session.user || null;
     res.locals.request = req; // Make request available in views
     next();
 });
+
+// Auth Middlewares
+const isAuth = (req, res, next) => {
+    if (req.session.user) return next();
+    req.session.error = "Please login first.";
+    res.redirect('/login');
+};
+
+const isFaculty = (req, res, next) => {
+    if (req.session.user && req.session.user.role === 'faculty') return next();
+    req.session.error = "Faculty access only.";
+    res.redirect('/');
+};
+
+const isStudent = (req, res, next) => {
+    if (req.session.user && req.session.user.role === 'student') return next();
+    req.session.error = "Student access only.";
+    res.redirect('/');
+};
 
 // Helper for redirecting with messages
 const flash = (req, type, msg) => {
@@ -67,69 +96,93 @@ const flash = (req, type, msg) => {
 app.get('/', async (req, res) => {
     try {
         const [internships] = await db.query('SELECT * FROM internships');
-        const [students] = await db.query('SELECT * FROM students');
-        res.render('index', { internships, students });
+        res.render('index', { internships });
     } catch (err) {
         console.error(err);
         res.status(500).send("Server Error");
     }
 });
 
-app.get('/post', async (req, res) => {
-    const [internships] = await db.query('SELECT * FROM internships');
+// Auth Routes
+app.get('/login', (req, res) => res.render('login'));
+app.post('/login', async (req, res) => {
+    const { email, password, role } = req.body;
+    let table = role === 'faculty' ? 'faculty' : 'students';
+    try {
+        const [users] = await db.query(`SELECT * FROM ${table} WHERE email = ?`, [email]);
+        if (users.length > 0) {
+            const match = await bcrypt.compare(password, users[0].password);
+            if (match) {
+                req.session.user = { id: users[0].id, name: users[0].name, role };
+                flash(req, 'success', 'Logged in successfully!');
+                return res.redirect(role === 'faculty' ? '/dashboard' : '/');
+            }
+        }
+    } catch(e) {}
+    flash(req, 'error', 'Invalid email or password');
+    res.redirect('/login');
+});
+
+app.get('/register/student', (req, res) => res.render('register_student'));
+app.post('/register/student', async (req, res) => {
+    const { name, email, password, PRN, division, semester, branch } = req.body;
+    const hash = await bcrypt.hash(password, 10);
+    try {
+        await db.query(`INSERT INTO students (name, email, password, PRN, division, semester, branch) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
+            [name, email, hash, PRN, division, semester, branch]);
+        flash(req, 'success', 'Registration successful! Please login.');
+        res.redirect('/login');
+    } catch (err) {
+        flash(req, 'error', 'Email already exists or invalid data.');
+        res.redirect('/register/student');
+    }
+});
+
+app.get('/register/faculty', (req, res) => res.render('register_faculty'));
+app.post('/register/faculty', async (req, res) => {
+    const { name, email, password, department } = req.body;
+    const hash = await bcrypt.hash(password, 10);
+    try {
+        await db.query(`INSERT INTO faculty (name, email, password, department) VALUES (?, ?, ?, ?)`, 
+            [name, email, hash, department]);
+        flash(req, 'success', 'Registration successful! Please login.');
+        res.redirect('/login');
+    } catch (err) {
+        flash(req, 'error', 'Email already exists or invalid data.');
+        res.redirect('/register/faculty');
+    }
+});
+
+app.get('/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/');
+});
+
+app.get('/post', isFaculty, async (req, res) => {
+    const [internships] = await db.query('SELECT * FROM internships WHERE faculty_id = ?', [req.session.user.id]);
     res.render('post_internship', { internships });
 });
 
-app.post('/post', async (req, res) => {
-    const { company, faculty, eligibility, duration, paid, mode } = req.body;
-    await db.query(`INSERT INTO internships (company, faculty, eligibility, duration, paid, mode) VALUES (?, ?, ?, ?, ?, ?)`, 
-        [company, faculty, eligibility, duration, paid, mode]);
+app.post('/post', isFaculty, async (req, res) => {
+    const { domain, company_name, contact, eligibility, duration, paid_or_unpaid, internship_mode } = req.body;
+    await db.query(`INSERT INTO internships (faculty_id, domain, company_name, contact, eligibility, duration, paid_or_unpaid, internship_mode) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, 
+        [req.session.user.id, domain, company_name, contact, eligibility, duration, paid_or_unpaid, internship_mode]);
     flash(req, 'success', 'Internship posted successfully!');
     res.redirect('/post');
 });
 
-app.post('/delete_internship/:id', async (req, res) => {
-    await db.query('DELETE FROM internships WHERE id = ?', [req.params.id]);
+app.post('/delete_internship/:id', isFaculty, async (req, res) => {
+    await db.query('DELETE FROM internships WHERE id = ? AND faculty_id = ?', [req.params.id, req.session.user.id]);
     flash(req, 'success', 'Internship deleted successfully.');
-    res.redirect('/post');
+    res.redirect('/dashboard'); // Post view might not show listings anymore if moved to dashboard
 });
 
-app.get('/add_student', async (req, res) => {
-    const [students] = await db.query('SELECT * FROM students');
-    res.render('add_student', { students });
-});
-
-app.post('/add_student', async (req, res) => {
-    const { name, branch, year, email } = req.body;
-    await db.query(`INSERT INTO students (name, branch, year, email) VALUES (?, ?, ?, ?)`,
-        [name, branch, year, email]);
-    flash(req, 'success', 'Student added successfully!');
-    res.redirect('/add_student');
-});
-
-app.post('/delete_student/:id', async (req, res) => {
-    await db.query('DELETE FROM students WHERE id = ?', [req.params.id]);
-    flash(req, 'success', 'Student deleted successfully.');
-    res.redirect('/add_student');
-});
-
-app.post('/apply/:id', upload.single('offer_letter'), async (req, res) => {
-    const { student_id } = req.body;
+app.post('/apply/:id', isStudent, upload.single('resume'), async (req, res) => {
+    const student_id = req.session.user.id;
     const internship_id = req.params.id;
 
-    // Validation
-    const [studentInfo] = await db.query('SELECT * FROM students WHERE id = ?', [student_id]);
-    const [internshipInfo] = await db.query('SELECT * FROM internships WHERE id = ?', [internship_id]);
-
-    if (studentInfo.length === 0) {
-        flash(req, 'error', 'Student not found');
-        return res.redirect('/');
-    }
-    const student = studentInfo[0];
-    const internship = internshipInfo[0];
-
-    if (student.branch.toLowerCase() !== internship.eligibility.toLowerCase() && internship.eligibility.toLowerCase() !== 'any') {
-        flash(req, 'error', 'Student branch is not eligible for this internship');
+    if (!req.file) {
+        flash(req, 'error', 'Please upload your resume (PDF).');
         return res.redirect('/');
     }
 
@@ -139,32 +192,31 @@ app.post('/apply/:id', upload.single('offer_letter'), async (req, res) => {
         return res.redirect('/');
     }
 
-    if (!req.file) {
-        flash(req, 'error', 'Please upload an offer letter.');
+    const [internshipInfo] = await db.query('SELECT * FROM internships WHERE id = ?', [internship_id]);
+    if (internshipInfo.length === 0) {
+        flash(req, 'error', 'Internship not found.');
         return res.redirect('/');
     }
+    const internship = internshipInfo[0];
 
     const relPath = `static/uploads/${req.file.filename}`;
-    await db.query(`INSERT INTO applications (student_id, internship_id, offer_letter, status) VALUES (?, ?, ?, ?)`,
-        [student_id, internship_id, relPath, 'Applied']);
+    await db.query(`INSERT INTO applications (student_id, internship_id, resume, internship_mode, domain, company_name, duration, paid_unpaid, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [student_id, internship_id, relPath, internship.internship_mode, internship.domain, internship.company_name, internship.duration, internship.paid_or_unpaid, 'Applied']);
     
     flash(req, 'success', 'Successfully applied for internship!');
     res.redirect('/');
 });
 
-app.get('/dashboard', async (req, res) => {
+app.get('/dashboard', isFaculty, async (req, res) => {
     const [[{total}]] = await db.query('SELECT COUNT(*) as total FROM applications');
-    const [[{completed}]] = await db.query('SELECT COUNT(*) as completed FROM applications WHERE status = "completed"');
+    const [[{completed}]] = await db.query('SELECT COUNT(*) as completed FROM applications WHERE status = "Completed"');
     
-    const [[{paid}]] = await db.query('SELECT COUNT(*) as paid FROM internships WHERE paid = "yes"');
-    const [[{unpaid}]] = await db.query('SELECT COUNT(*) as unpaid FROM internships WHERE paid = "no"');
+    // Updated accurate query based on new schema
+    const [[{paid}]] = await db.query('SELECT COUNT(*) as paid FROM internships WHERE paid_or_unpaid = "paid" AND faculty_id = ?', [req.session.user.id]);
+    const [[{unpaid}]] = await db.query('SELECT COUNT(*) as unpaid FROM internships WHERE paid_or_unpaid = "unpaid" AND faculty_id = ?', [req.session.user.id]);
     
-    const [[{online}]] = await db.query('SELECT COUNT(*) as online FROM internships WHERE mode = "online"');
-    const [[{offline}]] = await db.query('SELECT COUNT(*) as offline FROM internships WHERE mode = "offline"');
-
-    const [[{se}]] = await db.query('SELECT COUNT(*) as se FROM students WHERE year = "SE"');
-    const [[{te}]] = await db.query('SELECT COUNT(*) as te FROM students WHERE year = "TE"');
-    const [[{be}]] = await db.query('SELECT COUNT(*) as be FROM students WHERE year = "BE"');
+    const [[{online}]] = await db.query('SELECT COUNT(*) as online FROM internships WHERE internship_mode = "online" AND faculty_id = ?', [req.session.user.id]);
+    const [[{offline}]] = await db.query('SELECT COUNT(*) as offline FROM internships WHERE internship_mode = "offline" AND faculty_id = ?', [req.session.user.id]);
 
     const [branches] = await db.query('SELECT DISTINCT branch FROM students');
     let branch_stats = {};
@@ -174,22 +226,22 @@ app.get('/dashboard', async (req, res) => {
     }
 
     res.render('dashboard', {
-        total, completed, paid, unpaid, online, offline, se, te, be, branch_stats: JSON.stringify(branch_stats)
+        total, completed, paid, unpaid, online, offline, se: 0, te: 0, be: 0, branch_stats: JSON.stringify(branch_stats)
     });
 });
 
-app.get('/applications', async (req, res) => {
-    // JOIN syntax since we dont have ORM relationships out of the box
+app.get('/applications', isFaculty, async (req, res) => {
     const [apps] = await db.query(`
-        SELECT a.id, a.offer_letter, a.status, s.name as student_name, s.branch, s.year, i.company, i.duration 
+        SELECT a.id, a.resume, a.status, s.name as student_name, s.branch, s.semester, a.company_name, a.duration 
         FROM applications a
         JOIN students s ON a.student_id = s.id
         JOIN internships i ON a.internship_id = i.id
-    `);
+        WHERE i.faculty_id = ?
+    `, [req.session.user.id]);
     res.render('applications', { applications: apps });
 });
 
-app.post('/applications/:id/update_status', async (req, res) => {
+app.post('/applications/:id/update_status', isFaculty, async (req, res) => {
     const { status } = req.body;
     if (status) {
         await db.query('UPDATE applications SET status = ? WHERE id = ?', [status, req.params.id]);
@@ -198,25 +250,26 @@ app.post('/applications/:id/update_status', async (req, res) => {
     res.redirect('/applications');
 });
 
-app.get('/report', async (req, res) => {
+app.get('/report', isFaculty, async (req, res) => {
     const [apps] = await db.query(`
-        SELECT a.id, a.status, s.name as student_name, s.branch, s.year, i.company, i.duration, i.mode, i.paid
+        SELECT a.id, a.status, s.name as student_name, s.branch, s.semester, a.company_name, a.duration, a.internship_mode, a.paid_unpaid
         FROM applications a
         JOIN students s ON a.student_id = s.id
         JOIN internships i ON a.internship_id = i.id
-    `);
+        WHERE i.faculty_id = ?
+    `, [req.session.user.id]);
     
     const cw = createObjectCsvWriter({
         path: 'internship_report.csv',
         header: [
             { id: 'id', title: 'Application ID' },
             { id: 'student_name', title: 'Student Name' },
-            { id: 'branch', title: 'Student Branch' },
-            { id: 'year', title: 'Student Year' },
-            { id: 'company', title: 'Company' },
-            { id: 'duration', title: 'Internship Duration' },
-            { id: 'mode', title: 'Mode' },
-            { id: 'paid', title: 'Paid' },
+            { id: 'branch', title: 'Branch' },
+            { id: 'semester', title: 'Semester' },
+            { id: 'company_name', title: 'Company' },
+            { id: 'duration', title: 'Duration' },
+            { id: 'internship_mode', title: 'Mode' },
+            { id: 'paid_unpaid', title: 'Paid' },
             { id: 'status', title: 'Status' }
         ]
     });

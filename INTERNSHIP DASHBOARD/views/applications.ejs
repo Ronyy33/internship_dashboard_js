@@ -12,9 +12,10 @@
                     <th>ID</th>
                     <th>Student</th>
                     <th>Branch</th>
-                    <th>Year</th>
+                    <th>Semester</th>
                     <th>Company</th>
-                    <th>Offer Letter</th>
+                    <th>Duration</th>
+                    <th>Resume</th>
                     <th>Status</th>
                     <th>Action</th>
                 </tr>
@@ -25,10 +26,11 @@
                     <td>#<%= app.id %></td>
                     <td><%= app.student_name %></td>
                     <td><%= app.branch %></td>
-                    <td><span class="badge bg-secondary"><%= app.year %></span></td>
-                    <td><%= app.company %></td>
+                    <td><span class="badge bg-secondary"><%= app.semester %></span></td>
+                    <td><%= app.company_name %></td>
+                    <td><%= app.duration %></td>
                     <td>
-                        <a href="/<%= app.offer_letter %>" target="_blank" class="btn btn-sm btn-outline-primary">
+                        <a href="/<%= app.resume %>" target="_blank" class="btn btn-sm btn-outline-primary">
                             <i class="bi bi-file-earmark-text"></i> View
                         </a>
                     </td>
