@@ -1,0 +1,51 @@
+<div class="row justify-content-center mt-5">
+  <div class="col-md-8">
+    <div class="card shadow">
+      <div class="card-header bg-success text-white text-center">
+        <h4>Create Student Account</h4>
+      </div>
+      <div class="card-body">
+        <form method="POST" action="/register/student">
+          <div class="row">
+            <%
+              var enrollmentInputs = [
+                { caption: 'Full Name', key: 'name', kind: 'text', span: 6, hint: '', dropdown: false },
+                { caption: 'PRN Number', key: 'PRN', kind: 'text', span: 6, hint: '', dropdown: false },
+                { caption: 'Email', key: 'email', kind: 'email', span: 6, hint: '', dropdown: false },
+                { caption: 'Password', key: 'password', kind: 'password', span: 6, hint: '', dropdown: false },
+                { caption: 'Branch', key: 'branch', kind: 'text', span: 4, hint: 'e.g. Computer Science', dropdown: false },
+                { caption: 'Semester', key: 'semester', kind: '', span: 4, hint: '', dropdown: true },
+                { caption: 'Division', key: 'division', kind: 'text', span: 4, hint: 'e.g. A', dropdown: false }
+              ];
+              for (var f = 0; f < enrollmentInputs.length; f += 1) {
+                var field = enrollmentInputs[f];
+            %>
+            <div class="col-md-<%= field.span %> mb-3">
+              <label class="form-label"><%= field.caption %></label>
+              <% if (field.dropdown) { %>
+                <select required class="form-select" name="<%= field.key %>">
+                  <% for (var n = 1; n <= 8; n += 1) { %>
+                    <option value="<%= n %>"><%= n %></option>
+                  <% } %>
+                </select>
+              <% } else { %>
+                <input
+                  class="form-control"
+                  type="<%= field.kind %>"
+                  name="<%= field.key %>"
+                  <% if (field.hint.length > 0) { %>placeholder="<%= field.hint %>"<% } %>
+                  required
+                >
+              <% } %>
+            </div>
+            <% } %>
+          </div>
+          <button type="submit" class="btn btn-success w-100">Create Account</button>
+        </form>
+        <div class="mt-3 text-center">
+          <a href="/login">Already registered? Sign in here</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

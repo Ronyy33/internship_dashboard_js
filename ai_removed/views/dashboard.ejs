@@ -1,0 +1,120 @@
+
+
+Dashboard - Internship Portal
+
+<div class="content-banner">
+  <h2 class="primary-title">Internship Dashboard</h2>
+  <a href="/report" class="btn btn-primary">
+    <i class="bi bi-download me-2"></i>Export Report
+  </a>
+</div>
+
+<%
+  /* Assemble metric card descriptors as an array */
+  var summaryCards = [
+    { label: 'Total Applications', value: total, highlight: '' },
+    { label: 'Completed', value: completed, highlight: 'color: var(--secondary);' },
+    { label: 'Paid Internships', value: paid, highlight: 'color: var(--warning);' },
+    { label: 'Unpaid Internships', value: unpaid, highlight: 'color: var(--danger);' }
+  ];
+%>
+<div class="row g-4 mb-5">
+  <% for (var sc = 0; sc < summaryCards.length; sc += 1) { var cardInfo = summaryCards[sc]; %>
+  <div class="col-md-3">
+    <div class="card h-100">
+      <div class="stat-widget">
+        <h5><%= cardInfo.label %></h5>
+        <% if (cardInfo.highlight.length > 0) { %>
+          <h2 style="<%= cardInfo.highlight %>"><%= cardInfo.value %></h2>
+        <% } else { %>
+          <h2><%= cardInfo.value %></h2>
+        <% } %>
+      </div>
+    </div>
+  </div>
+  <% } %>
+</div>
+
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="card p-4 h-100">
+      <h5
+        style="font-weight: 600; font-size: 0.875rem;"
+        class="text-muted text-uppercase mb-4"
+      >Paid vs Unpaid</h5>
+      <div style="position: relative; height: 300px; width: 100%; display: flex; justify-content: center;">
+        <canvas id="compensationDonut"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card p-4 h-100">
+      <h5
+        style="font-weight: 600; font-size: 0.875rem;"
+        class="text-muted text-uppercase mb-4"
+      >Application Modes</h5>
+      <div style="position: relative; height: 300px; width: 100%; display: flex; justify-content: center;">
+        <canvas id="deliveryModePie"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Chart initialization routine */
+function drawDashboardCharts() {
+  var sharedOpts = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { font: { family: 'Inter' } }
+      }
+    }
+  };
+
+  /* Compensation doughnut */
+  var compCanvas = document.getElementById('compensationDonut');
+  if (compCanvas !== null) {
+    new Chart(compCanvas, {
+      type: 'doughnut',
+      data: {
+        labels: ['Paid', 'Unpaid'],
+        datasets: [{
+          data: [<%= paid %>, <%= unpaid %>],
+          backgroundColor: ['#10B981', '#EF4444'],
+          borderWidth: 0,
+          hoverOffset: 4
+        }]
+      },
+      options: sharedOpts
+    });
+  }
+
+  /* Delivery modes pie */
+  var modeCanvas = document.getElementById('deliveryModePie');
+  if (modeCanvas !== null) {
+    new Chart(modeCanvas, {
+      type: 'pie',
+      data: {
+        labels: ['Online', 'Offline'],
+        datasets: [{
+          data: [<%= online %>, <%= offline %>],
+          backgroundColor: ['#4F46E5', '#F59E0B'],
+          borderWidth: 0,
+          hoverOffset: 4
+        }]
+      },
+      options: sharedOpts
+    });
+  }
+}
+
+/* Trigger rendering when DOM is ready */
+if (document.readyState !== 'loading') {
+  drawDashboardCharts();
+} else {
+  document.addEventListener('DOMContentLoaded', drawDashboardCharts);
+}
+</script>

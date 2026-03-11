@@ -1,0 +1,135 @@
+<div class="row justify-content-center mb-5">
+  <div class="col-md-8">
+    <div class="content-banner d-flex justify-content-between align-items-center mb-4">
+      <h2 class="primary-title mb-0">Create New Internship Listing</h2>
+    </div>
+
+    <div class="card p-4">
+      <form action="/post" method="POST">
+        <%
+          /* Define form layout as grouped row specifications */
+          var fieldGroups = [
+            [
+              { caption: 'Company Name', key: 'company_name', kind: 'text', hint: 'e.g. Google', mandatory: true },
+              { caption: 'Domain', key: 'domain', kind: 'text', hint: 'e.g. Web Development', mandatory: true }
+            ],
+            [
+              { caption: 'Contact Email / Phone', key: 'contact', kind: 'text', hint: 'e.g. hr@google.com', mandatory: true },
+              { caption: 'Eligible Branch', key: 'eligibility', kind: 'text', hint: 'e.g. Computer Science (Or Any)', mandatory: false }
+            ],
+            [
+              { caption: 'Duration', key: 'duration', kind: 'text', hint: 'e.g. 6 Months', mandatory: true }
+            ]
+          ];
+          for (var g = 0; g < fieldGroups.length; g += 1) {
+            var groupCols = fieldGroups[g];
+        %>
+        <div class="row mb-3">
+          <% for (var c = 0; c < groupCols.length; c += 1) { var col = groupCols[c]; %>
+          <div class="col-md-6">
+            <label><%= col.caption %></label>
+            <input
+              class="form-control"
+              type="<%= col.kind %>"
+              name="<%= col.key %>"
+              placeholder="<%= col.hint %>"
+              <% if (col.mandatory) { %>required<% } %>
+            >
+          </div>
+          <% } %>
+        </div>
+        <% } %>
+
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <label>Paid Status</label>
+            <select class="form-select" name="paid_or_unpaid">
+              <option value="Paid">Paid</option>
+              <option value="Unpaid">Unpaid</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label>Mode</label>
+            <select class="form-select" name="internship_mode">
+              <option value="Online">Online</option>
+              <option value="Offline">Offline</option>
+              <option value="Hybrid">Hybrid</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">
+          <i class="bi bi-plus-circle me-2"></i>Publish Internship
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-md-10">
+    <h4 class="mb-4">Active Internship Listings</h4>
+    <div class="card p-4">
+      <%
+        var currentListings = (internships != null) ? internships : [];
+        var hasListings = (currentListings.length > 0);
+      %>
+      <% if (!hasListings) { %>
+      <div class="text-center py-5">
+        <i style="font-size: 3rem;" class="bi bi-briefcase text-muted"></i>
+        <h5 class="mt-3 text-muted">No listings have been published yet.</h5>
+      </div>
+      <% } else { %>
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>Domain</th>
+              <th>Eligibility</th>
+              <th>Duration</th>
+              <th>Paid</th>
+              <th>Mode</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% for (var j = 0; j < currentListings.length; j += 1) { var listing = currentListings[j]; %>
+            <tr>
+              <td class="fw-bold"><%= listing.company_name %></td>
+              <td><%= listing.domain %></td>
+              <td><%= listing.eligibility %></td>
+              <td><%= listing.duration %></td>
+              <td>
+                <% var payCheck = listing.paid_or_unpaid.toLowerCase(); %>
+                <% if (payCheck === 'paid') { %>
+                  <span class="badge bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill">Paid</span>
+                <% } else { %>
+                  <span class="badge bg-danger-subtle border border-danger-subtle text-danger-emphasis rounded-pill">Unpaid</span>
+                <% } %>
+              </td>
+              <td><%= listing.internship_mode %></td>
+              <td>
+                <form
+                  method="POST"
+                  action="/delete_internship/<%= listing.id %>"
+                  onsubmit="return confirm('Remove this listing and all linked applications?');"
+                >
+                  <button
+                    class="btn btn-sm btn-outline-danger"
+                    type="submit"
+                    title="Remove Listing"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+      <% } %>
+    </div>
+  </div>
+</div>
