@@ -1,3 +1,38 @@
-Application ID,Student Name,Student Branch,Student Year,Company,Internship Duration,Mode,Paid,Status
-1,John Snow,CS,TE,GOOGLE,1 MONTH,Hybrid,Unpaid,Applied
-2,SARU CUTU,CS+AI+SABKUCH,SE,SLEEPING,10000000000000000000000000000,Offline,Paid,Completed
+Application ID,Student Name,Branch,Semester,Company,Duration,Mode,Paid,Status
+2,Student Test,Computer Science,5,google,1 MONTH,Online,Paid,Completed
+3,Student Test,Computer Science,5,amazon,1 MONTH,Online,Paid,Applied
+4,Nikhil Vijay Patil,Civil,SEM5,Adyanta semiconductor,3 Month,Online,Paid,Completed
+5,Abhishek Ramesh Kale,Computer Science,SEM5,Adyanta semiconductor,3 Month,Hybrid,Unpaid,Completed
+6,Robin Villyam Coutinho,Civil,SEM4,Adyanta semiconductor,3 Month,Online,Unpaid,Completed
+7,Vedika Narendra Sule,Computer Science,SEM1,Adyanta semiconductor,3 Month,Offline,Unpaid,Completed
+8,Aryan Rahul Mane,Mechanical,SEM7,ARAI,3 Month,Offline,Paid,Completed
+9,Suhani Mane,Mechanical,SEM2,Bentork LLP,3 Month,Offline,Paid,Completed
+10,Rishi Harish Sharma,Information Technology,SEM6,BINARY BIRD,2 Month,Online,Paid,Completed
+11,Gunjal Prajakta Anand,Electronics,SEM3,Bioinformatics department SPPU,3 Month,Online,Paid,Completed
+12,Anshul Dekate,Computer Science,SEM7,Brose India,3 Month,Online,Unpaid,Completed
+13,Vaidehi Avinash Magare,Civil,SEM7,Codtech It Solutions Pvt. Ltd Information Technology Services,1 Month,Offline,Unpaid,Completed
+14,Aatish Dilip More,Computer Science,SEM2,"DRDO R&DE(E), Dighi, Pune, Maharashtra - 411015",6 Month,Online,Paid,Completed
+15,Hrutanshu Kurankar,Electronics,SEM2,Ebix Cash Financial Technologies,1 Month,Online,Unpaid,Completed
+16,Shravani Atul Barathe,Civil,SEM4,Equations Work,3 Month,Hybrid,Unpaid,Completed
+17,Adarsh Kasliwal,Computer Science,SEM1,Equations Work,3 Month,Hybrid,Paid,Completed
+18,Aditya Ajitrao Kulkarni,Mechanical,SEM7,Hilwitz Private Limited,12 Month,Online,Paid,Completed
+19,Anuj Gulavani,Computer Science,SEM7,Indio Networks,12 Month,Hybrid,Paid,Completed
+20,Varad Vilas Marne,Information Technology,SEM6,Indio Networks,12 Month,Online,Paid,Completed
+21,Rutuparna Shende,Information Technology,SEM5,Indio Networks,12 Month,Hybrid,Unpaid,Completed
+22,Pranav Sanjay Raut,Computer Science,SEM5,InlighnX global pvt. Ltd.,1 Month,Offline,Paid,Completed
+23,Parth kadam,Electronics,SEM5,IVC Ventures,8 Month,Offline,Unpaid,Completed
+24,Shweta Ingole,Mechanical,SEM8,IVC Ventures,8 Month,Hybrid,Unpaid,Completed
+25,Lavesh Akhadkar,Civil,SEM8,IVC Ventures,8 Month,Hybrid,Unpaid,Completed
+26,Bhushan Anokar,Information Technology,SEM1,IVC Ventures,6 Month,Offline,Paid,Completed
+27,Omkar Ashish Deodhar,Electronics,SEM8,Kirtane & Pandit LLP,6 Month,Online,Unpaid,Completed
+28,Atharva Karval,Computer Science,SEM3,Nexarge services Pvt.Ltd.,3 Month,Hybrid,Unpaid,Completed
+29,Rokade Saurabh Tanhaji,Mechanical,SEM6,Nexarge services Pvt.Ltd.,3 Month,Offline,Paid,Completed
+30,Esha Ratnaparkhi,Electronics,SEM4,PGAGI consultancy PVT LTd,6 Month,Hybrid,Paid,Completed
+31,Sanica Mayna,Civil,SEM1,PPC,6 Month,Hybrid,Unpaid,Completed
+32,Manas Choudhari,Computer Science,SEM7,R2 Talentxplore & Research Pvt ltd,12 Month,Online,Paid,Completed
+33,Anuj Arun Dengale,Mechanical,SEM5,R2 Talentxplore & Research Pvt ltd,12 Month,Offline,Unpaid,Completed
+34,Lavale Vedant Sachin,Electronics,SEM7,Socialease Pvt ltd,1 Month,Offline,Unpaid,Completed
+35,Parth Keshatwar,Mechanical,SEM1,Sportvot,5 Month,Online,Paid,Completed
+36,Rishi Harish Sharma,Information Technology,SEM6,Toro Technology Center India LLP,6 Month,Hybrid,Unpaid,Completed
+37,Manas Siddharth Deshpande,Electronics,SEM1,Sylwen Investments,6 Month,Offline,Paid,Completed
+38,Anvita Kashikar,Computer Science,SEM1,Zentrixel,4 Month,Offline,Paid,Completed
