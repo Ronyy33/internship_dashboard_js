@@ -262,17 +262,17 @@ function buildStatQueries(instructorId) {
       sql: base + 'applications WHERE status = "Completed"',
       params: [] },
     { key: 'paidPositions',
-      sql: base + 'internships WHERE paid_or_unpaid = "paid" AND faculty_id = ?',
-      params: [instructorId] },
+      sql: base + 'internships WHERE paid_or_unpaid = "paid"',
+      params: [] },
     { key: 'unpaidPositions',
-      sql: base + 'internships WHERE paid_or_unpaid = "unpaid" AND faculty_id = ?',
-      params: [instructorId] },
+      sql: base + 'internships WHERE paid_or_unpaid = "unpaid"',
+      params: [] },
     { key: 'remotePositions',
-      sql: base + 'internships WHERE internship_mode = "online" AND faculty_id = ?',
-      params: [instructorId] },
+      sql: base + 'internships WHERE internship_mode = "online"',
+      params: [] },
     { key: 'onsitePositions',
-      sql: base + 'internships WHERE internship_mode = "offline" AND faculty_id = ?',
-      params: [instructorId] }
+      sql: base + 'internships WHERE internship_mode = "offline"',
+      params: [] }
   ];
 }
 
@@ -343,9 +343,9 @@ async function serveApplicationsList(webReq, webRes) {
     'JOIN students s ON a.student_id = s.id',
     'JOIN internships i ON a.internship_id = i.id'
   ];
-  var fullSql = selectParts.concat(fromParts).join(' ') + ' WHERE i.faculty_id = ?';
+  var fullSql = selectParts.concat(fromParts).join(' ');
 
-  var result = await dbPool.query(fullSql, [facId]);
+  var result = await dbPool.query(fullSql);
   var records = result[0];
   webRes.render('applications', { applications: records });
 }
@@ -376,9 +376,9 @@ async function generateAndDownloadReport(webReq, webRes) {
     'JOIN students s ON a.student_id = s.id',
     'JOIN internships i ON a.internship_id = i.id'
   ];
-  var rptSql = selCols.concat(joinTables).join(' ') + ' WHERE i.faculty_id = ?';
+  var rptSql = selCols.concat(joinTables).join(' ');
 
-  var rptResult = await dbPool.query(rptSql, [facId]);
+  var rptResult = await dbPool.query(rptSql);
   var rptRows = rptResult[0];
 
   /* Define CSV columns as an array of descriptor objects */
