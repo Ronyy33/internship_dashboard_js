@@ -2,108 +2,127 @@
 
 Dashboard - Internship Portal
 
-
-<div class="page-header">
-    <h2 class="page-title">Internship Dashboard</h2>
-    <a href="/report" class="btn btn-primary"><i class="bi bi-download me-2"></i>Export Report</a>
+<div class="listing-header">
+  <h2 class="section-heading">Internship Dashboard</h2>
+  <a
+    href="/report"
+    class="btn btn-primary"
+  ><i class="bi bi-download me-2"></i>Export Report</a>
 </div>
 
+<%
+  /* Build an array of stat card descriptors */
+  var cardDefs = [];
+  cardDefs.push({ heading: 'Total Applications', figure: total, accent: '' });
+  cardDefs.push({ heading: 'Completed', figure: completed, accent: 'color: var(--secondary);' });
+  cardDefs.push({ heading: 'Paid Internships', figure: paid, accent: 'color: var(--warning);' });
+  cardDefs.push({ heading: 'Unpaid Internships', figure: unpaid, accent: 'color: var(--danger);' });
+  var ci = 0;
+%>
 <div class="row g-4 mb-5">
-    <!-- Stat 1 -->
-    <div class="col-md-3">
-        <div class="card h-100">
-            <div class="stat-card">
-                <h5>Total Applications</h5>
-                <h2><%= total %></h2>
-            </div>
-        </div>
+  <% while (ci < cardDefs.length) { var cd = cardDefs[ci]; %>
+  <div class="col-md-3">
+    <div class="card h-100">
+      <div class="metrics-panel">
+        <h5><%= cd.heading %></h5>
+        <%
+          var hasAccent = (cd.accent.length > 0);
+        %>
+        <% if (hasAccent) { %>
+          <h2 style="<%= cd.accent %>"><%= cd.figure %></h2>
+        <% } else { %>
+          <h2><%= cd.figure %></h2>
+        <% } %>
+      </div>
     </div>
-    <!-- Stat 2 -->
-    <div class="col-md-3">
-        <div class="card h-100">
-            <div class="stat-card">
-                <h5>Completed</h5>
-                <h2 style="color: var(--secondary);"><%= completed %></h2>
-            </div>
-        </div>
-    </div>
-    <!-- Stat 3 -->
-    <div class="col-md-3">
-        <div class="card h-100">
-            <div class="stat-card">
-                <h5>Paid Internships</h5>
-                <h2 style="color: var(--warning);"><%= paid %></h2>
-            </div>
-        </div>
-    </div>
-    <!-- Stat 4 -->
-    <div class="col-md-3">
-        <div class="card h-100">
-            <div class="stat-card">
-                <h5>Unpaid Internships</h5>
-                <h2 style="color: var(--danger);"><%= unpaid %></h2>
-            </div>
-        </div>
-    </div>
+  </div>
+  <% ci = ci + 1; } %>
 </div>
 
 <div class="row g-4">
-    <div class="col-md-6">
-        <div class="card p-4 h-100">
-            <h5 class="text-muted text-uppercase mb-4" style="font-size: 0.875rem; font-weight: 600;">Paid vs Unpaid</h5>
-            <div style="position: relative; height: 300px; width: 100%; display: flex; justify-content: center;">
-                <canvas id="paidChart"></canvas>
-            </div>
-        </div>
+  <div class="col-md-6">
+    <div class="card p-4 h-100">
+      <h5
+        class="text-muted text-uppercase mb-4"
+        style="font-size: 0.875rem; font-weight: 600;"
+      >Paid vs Unpaid</h5>
+      <div style="height: 300px; width: 100%; display: flex; justify-content: center; position: relative;">
+        <canvas id="compensationDonut"></canvas>
+      </div>
     </div>
-    <div class="col-md-6">
-        <div class="card p-4 h-100">
-            <h5 class="text-muted text-uppercase mb-4" style="font-size: 0.875rem; font-weight: 600;">Application Modes</h5>
-            <div style="position: relative; height: 300px; width: 100%; display: flex; justify-content: center;">
-                <canvas id="modeChart"></canvas>
-            </div>
-        </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card p-4 h-100">
+      <h5
+        class="text-muted text-uppercase mb-4"
+        style="font-size: 0.875rem; font-weight: 600;"
+      >Application Modes</h5>
+      <div style="height: 300px; width: 100%; display: flex; justify-content: center; position: relative;">
+        <canvas id="deliveryModePie"></canvas>
+      </div>
     </div>
+  </div>
 </div>
 
-
-
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const commonOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: { position: 'bottom', labels: { font: { family: 'Inter' } } }
+/* Wrapped in an IIFE to avoid polluting global scope */
+(function () {
+  var renderCharts = function () {
+    /* Shared visual settings for both chart instances */
+    var chartDefaults = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { font: { family: 'Inter' } }
         }
+      }
     };
 
-    new Chart(document.getElementById("paidChart"), {
-        type: "doughnut",
+    /* Compensation breakdown - doughnut chart */
+    var compNode = document.getElementById('compensationDonut');
+    if (compNode) {
+      new Chart(compNode, {
+        type: 'doughnut',
         data: {
-            labels: ["Paid", "Unpaid"],
-            datasets: [{
-                data: [<%= paid %>, <%= unpaid %>],
-                backgroundColor: ['#10B981', '#EF4444'],
-                borderWidth: 0,
-                hoverOffset: 4
-            }]
+          labels: ['Paid', 'Unpaid'],
+          datasets: [{
+            data: [<%= paid %>, <%= unpaid %>],
+            backgroundColor: ['#10B981', '#EF4444'],
+            borderWidth: 0,
+            hoverOffset: 4
+          }]
         },
-        options: commonOptions
-    });
+        options: chartDefaults
+      });
+    }
 
-    new Chart(document.getElementById("modeChart"), {
-        type: "pie",
+    /* Delivery mode - pie chart */
+    var modeNode = document.getElementById('deliveryModePie');
+    if (modeNode) {
+      new Chart(modeNode, {
+        type: 'pie',
         data: {
-            labels: ["Online", "Offline"],
-            datasets: [{
-                data: [<%= online %>, <%= offline %>],
-                backgroundColor: ['#4F46E5', '#F59E0B'],
-                borderWidth: 0,
-                hoverOffset: 4
-            }]
+          labels: ['Online', 'Offline'],
+          datasets: [{
+            data: [<%= online %>, <%= offline %>],
+            backgroundColor: ['#4F46E5', '#F59E0B'],
+            borderWidth: 0,
+            hoverOffset: 4
+          }]
         },
-        options: commonOptions
-    });
-});
+        options: chartDefaults
+      });
+    }
+  };
+
+  /* Initialize once the DOM is interactive */
+  var docState = document.readyState;
+  if (docState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderCharts);
+  } else {
+    renderCharts();
+  }
+})();
 </script>

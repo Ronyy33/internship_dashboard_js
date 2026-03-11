@@ -1,34 +1,63 @@
 <div class="row justify-content-center mt-5">
-    <div class="col-md-6">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white text-center">
-                <h4>Login to Portal</h4>
-            </div>
-            <div class="card-body">
-                <form action="/login" method="POST">
-                    <div class="mb-3">
-                        <label class="form-label">Email</label>
-                        <input type="email" name="email" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Password</label>
-                        <input type="password" name="password" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Role</label>
-                        <select name="role" class="form-select" required>
-                            <option value="student">Student</option>
-                            <option value="faculty">Faculty</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Login</button>
-                </form>
-                <div class="mt-3 text-center">
-                    <p>Don't have an account?</p>
-                    <a href="/register/student" class="btn btn-outline-secondary btn-sm">Register as Student</a>
-                    <a href="/register/faculty" class="btn btn-outline-secondary btn-sm">Register as Faculty</a>
-                </div>
-            </div>
+  <div class="col-md-6">
+    <div class="card shadow">
+      <div
+        class="card-header bg-primary text-white text-center"
+      >
+        <h4>Sign In to Portal</h4>
+      </div>
+      <div class="card-body">
+        <form
+          action="/login"
+          method="POST"
+        >
+          <%
+            var credFields = [
+              { lbl: 'Email', fName: 'email', fType: 'email' },
+              { lbl: 'Password', fName: 'password', fType: 'password' }
+            ];
+            var cfi = 0;
+            while (cfi < credFields.length) {
+              var cf = credFields[cfi];
+          %>
+          <div class="mb-3">
+            <label class="form-label"><%= cf.lbl %></label>
+            <input
+              name="<%= cf.fName %>"
+              type="<%= cf.fType %>"
+              class="form-control"
+              required
+            >
+          </div>
+          <% cfi = cfi + 1; } %>
+          <div class="mb-3">
+            <label class="form-label">Role</label>
+            <select
+              name="role"
+              class="form-select"
+              required
+            >
+              <option value="student">Student</option>
+              <option value="faculty">Faculty</option>
+            </select>
+          </div>
+          <button
+            type="submit"
+            class="btn btn-primary w-100"
+          >Sign In</button>
+        </form>
+        <div class="mt-3 text-center">
+          <p>Need an account?</p>
+          <a
+            href="/register/student"
+            class="btn btn-outline-secondary btn-sm"
+          >Student Signup</a>
+          <a
+            href="/register/faculty"
+            class="btn btn-outline-secondary btn-sm"
+          >Faculty Signup</a>
         </div>
+      </div>
     </div>
+  </div>
 </div>

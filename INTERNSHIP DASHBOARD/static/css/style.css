@@ -1,0 +1,183 @@
+/* ===== CSS Structural Mutation & Premium Aesthetics ===== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #f8fafc;
+  color: #1e293b;
+}
+
+/* Navbar Enhancements */
+.navbar {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.navbar-brand {
+  font-weight: 700;
+  color: #0f172a !important;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.college-logo-nav {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.college-logo-nav:hover {
+  transform: scale(1.05);
+}
+
+.nav-link {
+  font-weight: 500;
+  color: #64748b !important;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.nav-link:hover {
+  color: #3b82f6 !important;
+  transform: translateY(-1px);
+}
+
+/* Base structural renames */
+.listing-header {
+  padding-top: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom-width: 2px;
+  border-bottom-style: solid;
+  border-bottom-color: #e2e8f0;
+}
+
+.section-heading {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.025em;
+}
+
+/* Cards (Internships, Forms, Metrics) */
+.card {
+  border: none;
+  border-radius: 12px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
+}
+
+/* Only apply hover lift to internship listing cards, not forms */
+.internship-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.metrics-panel {
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.metrics-panel:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border-color: #cbd5e1;
+}
+
+/* Card Headers for Forms */
+.card-header {
+  border-bottom: none;
+  padding: 1.25rem 1.5rem;
+  font-weight: 600;
+}
+
+/* Buttons */
+.btn {
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+}
+
+.btn-primary:hover {
+  background-color: #2563eb;
+  border-color: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(59, 130, 246, 0.4);
+}
+
+/* Form Controls */
+.form-control, .form-select {
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  padding: 0.6rem 1rem;
+  transition: all 0.2s ease;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* Tables */
+.table {
+  margin-bottom: 0;
+}
+
+.table th {
+  background-color: #f8fafc;
+  color: #475569;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  padding: 1rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.table td {
+  padding: 1rem;
+  vertical-align: middle;
+  color: #1e293b;
+}
+
+.badge {
+  padding: 0.4em 0.8em;
+  font-weight: 500;
+  border-radius: 9999px;
+}
+
+/* Animation */
+.entry-animation {
+  opacity: 0;
+  animation-name: customFadeIn;
+  animation-duration: 0.6s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  animation-fill-mode: forwards;
+}
+
+@keyframes customFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
