@@ -1,0 +1,115 @@
+<div class="content-banner">
+  <h2 class="primary-title">Submitted Applications</h2>
+  <a class="btn btn-primary" href="/report">
+    <i class="bi bi-download me-2"></i>Download Report
+  </a>
+</div>
+
+<div class="card p-4">
+  <% var submissions=(applications !=null) ? applications : []; var hasRecords=(submissions.length> 0);
+    %>
+    <% if (!hasRecords) { %>
+      <div class="text-center py-5">
+        <i style="font-size: 3rem;" class="bi bi-inbox text-muted"></i>
+        <h5 class="mt-3 text-muted">No submissions to display.</h5>
+      </div>
+      <% } else { %>
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <% var headerLabels=['ID', 'PRN' , 'Student' , 'Division' , 'Branch' , 'Semester' , 'Company'
+                  , 'Industry Mentor' , 'Start Date' , 'End Date' , 'Duration' , 'Resume' , 'Faculty Mentor' , 'Action'
+                  , 'Paid / Unpaid' , 'Status' ]; for (var h=0; h < headerLabels.length; h +=1) { %>
+                  <th>
+                    <%= headerLabels[h] %>
+                  </th>
+                  <% } %>
+              </tr>
+            </thead>
+            <tbody>
+              <% for (var s=0; s < submissions.length; s +=1) { var entry=submissions[s]; var
+                normalizedStatus=entry.status.toLowerCase(); /* Format dates for display */ var dispStart='' ; var
+                dispEnd='' ; var dispDuration='' ; if (entry.start_date) { var sd=new Date(entry.start_date);
+                dispStart=String(sd.getDate()).padStart(2, '0' ) + '-' + String(sd.getMonth() + 1).padStart(2, '0' )
+                + '-' + sd.getFullYear(); } if (entry.end_date) { var ed=new Date(entry.end_date);
+                dispEnd=String(ed.getDate()).padStart(2, '0' ) + '-' + String(ed.getMonth() + 1).padStart(2, '0' ) + '-'
+                + ed.getFullYear(); } if (entry.start_date && entry.end_date) { var diffMs=new
+                Date(entry.end_date).getTime() - new Date(entry.start_date).getTime(); dispDuration=Math.round(diffMs /
+                (1000 * 60 * 60 * 24)) + ' days' ; } %>
+                <tr>
+                  <td>#<%= entry.id %>
+                  </td>
+                  <td>
+                    <%= entry.PRN %>
+                  </td>
+                  <td>
+                    <%= entry.student_name %>
+                  </td>
+                  <td>
+                    <%= entry.division %>
+                  </td>
+                  <td>
+                    <%= entry.branch %>
+                  </td>
+                  <td><span class="badge bg-secondary">
+                      <%= entry.semester %>
+                    </span></td>
+                  <td>
+                    <%= entry.company_name %>
+                  </td>
+                  <td>
+                    <%= entry.industry_mentor || '' %>
+                  </td>
+                  <td>
+                    <%= dispStart %>
+                  </td>
+                  <td>
+                    <%= dispEnd %>
+                  </td>
+                  <td>
+                    <%= dispDuration %>
+                  </td>
+                  <td>
+                    <a class="btn btn-sm btn-outline-primary" href="/<%= entry.resume %>" target="_blank">
+                      <i class="bi bi-file-earmark-text"></i> View
+                    </a>
+                  </td>
+                  <td>
+                    <%= entry.faculty_mentor || '' %>
+                  </td>
+                  <td>
+                    <form method="POST" action="/applications/<%= entry.id %>/update_status"
+                      class="d-flex align-items-center gap-2">
+                      <select class="form-select form-select-sm" name="status" style="width: 140px;">
+                        <% var statusChoices=['Applied', 'In Progress' , 'Completed' , 'Rejected' ]; for (var c=0; c <
+                          statusChoices.length; c +=1) { var choice=statusChoices[c]; %>
+                          <option value="<%= choice %>" <% if (entry.status===choice) { %>selected<% } %>
+                              ><%= choice %>
+                          </option>
+                          <% } %>
+                      </select>
+                      <button type="submit" class="btn btn-sm btn-success">Save</button>
+                    </form>
+                  </td>
+                  <td>
+                    <%= entry.paid_or_unpaid || '' %>
+                  </td>
+                  <td>
+                    <% if (normalizedStatus==='applied' ) { %>
+                      <span class="badge bg-warning text-dark">Applied</span>
+                      <% } else if (normalizedStatus==='completed' ) { %>
+                        <span class="badge bg-success">Completed</span>
+                        <% } else { %>
+                          <span class="badge bg-secondary">
+                            <%= entry.status %>
+                          </span>
+                          <% } %>
+                  </td>
+                </tr>
+                <% } %>
+            </tbody>
+          </table>
+        </div>
+        <% } %>
+</div>

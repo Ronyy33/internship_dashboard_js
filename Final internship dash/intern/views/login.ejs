@@ -1,0 +1,44 @@
+<div class="row justify-content-center mt-5">
+  <div class="col-md-6">
+    <div class="card shadow">
+      <div class="card-header bg-primary text-white text-center">
+        <h4>Sign In to Portal</h4>
+      </div>
+      <div class="card-body">
+        <form method="POST" action="/login">
+          <%
+            var authInputs = [
+              { caption: 'Email', fieldId: 'email', inputKind: 'email' },
+              { caption: 'Password', fieldId: 'password', inputKind: 'password' }
+            ];
+            for (var m = 0; m < authInputs.length; m += 1) {
+              var fieldSpec = authInputs[m];
+          %>
+          <div class="mb-3">
+            <label class="form-label"><%= fieldSpec.caption %></label>
+            <input
+              class="form-control"
+              type="<%= fieldSpec.inputKind %>"
+              name="<%= fieldSpec.fieldId %>"
+              required
+            >
+          </div>
+          <% } %>
+          <div class="mb-3">
+            <label class="form-label">Role</label>
+            <select required class="form-select" name="role">
+              <option value="student">Student</option>
+              <option value="faculty">Faculty</option>
+            </select>
+          </div>
+          <button class="btn btn-primary w-100" type="submit">Sign In</button>
+        </form>
+        <div class="mt-3 text-center">
+          <p>Need an account?</p>
+          <a class="btn btn-outline-secondary btn-sm" href="/register/student">Student Signup</a>
+          <a class="btn btn-outline-secondary btn-sm" href="/register/faculty">Faculty Signup</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

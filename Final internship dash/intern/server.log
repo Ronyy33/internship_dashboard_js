@@ -1,0 +1,6 @@
+
+> internship-dashboard@1.0.0 start
+> node server.js
+
+HTTP listener active at port 3000
+All database tables ready.

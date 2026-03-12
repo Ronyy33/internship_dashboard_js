@@ -1,0 +1,188 @@
+<div class="row justify-content-center mb-5">
+  <div class="col-md-8">
+    <div class="content-banner d-flex justify-content-between align-items-center mb-4">
+      <h2 class="primary-title mb-0">Create New Internship Listing</h2>
+    </div>
+
+    <div class="card p-4">
+      <form action="/post" method="POST">
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label class="form-label mb-1">Company</label>
+            <input class="form-control" type="text" name="company_name" placeholder="e.g. Google" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label mb-1">Domain</label>
+            <select class="form-select" name="domain" required>
+              <option value="" disabled selected>Select a domain</option>
+              <option value="Web Development">Web Development</option>
+              <option value="AI/ML">AI/ML</option>
+              <option value="Cyber Security">Cyber Security</option>
+              <option value="IoT">IoT</option>
+              <option value="Data Analytics">Data Analytics</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-12">
+            <label class="form-label mb-1">Industry Mentor</label>
+            <input class="form-control" type="text" name="industry_mentor" placeholder="Industry mentor name" required>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label class="form-label mb-1">Start Date</label>
+            <input class="form-control" type="date" name="start_date" id="inputStartDate" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label mb-1">End Date</label>
+            <input class="form-control" type="date" name="end_date" id="inputEndDate" required>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <label class="form-label mb-1">Duration</label>
+            <input class="form-control bg-light" type="text" name="duration" id="inputDuration"
+              placeholder="Auto calculated" readonly required>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label mb-1">Mode</label>
+            <select class="form-select" name="internship_mode" required>
+              <option value="Online">Online</option>
+              <option value="Offline">Offline</option>
+              <option value="Hybrid">Hybrid</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label mb-1">Paid / Unpaid</label>
+            <select class="form-select" name="paid_or_unpaid" required>
+              <option value="Paid">Paid</option>
+              <option value="Unpaid">Unpaid</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row mb-4">
+          <div class="col-md-12">
+            <label class="form-label mb-1">Description</label>
+            <textarea class="form-control" name="eligibility" rows="2"
+              placeholder="Internship description / Eligibility" required></textarea>
+            <!-- Hidden contact field to satisfy schema requirements while hiding from UI as per strict sequence -->
+            <input type="hidden" name="contact" value="Not provided">
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">
+          <i class="bi bi-plus-circle me-2"></i>Publish Internship
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const startInput = document.getElementById('inputStartDate');
+    const endInput = document.getElementById('inputEndDate');
+    const durInput = document.getElementById('inputDuration');
+
+    function calculateDuration() {
+      if (startInput.value && endInput.value) {
+        const start = new Date(startInput.value);
+        const end = new Date(endInput.value);
+
+        if (end <= start) {
+          endInput.setCustomValidity('End Date must be greater than Start Date');
+          endInput.reportValidity();
+          durInput.value = '';
+        } else {
+          endInput.setCustomValidity('');
+          const diffMs = end.getTime() - start.getTime();
+          const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+          durInput.value = diffDays + ' days';
+        }
+      } else {
+        durInput.value = '';
+        endInput.setCustomValidity('');
+      }
+    }
+
+    startInput.addEventListener('change', calculateDuration);
+    endInput.addEventListener('change', calculateDuration);
+  });
+</script>
+
+<div class="row justify-content-center">
+  <div class="col-md-10">
+    <h4 class="mb-4">Active Internship Listings</h4>
+    <div class="card p-4">
+      <% var currentListings=(internships !=null) ? internships : []; var hasListings=(currentListings.length> 0);
+        %>
+        <% if (!hasListings) { %>
+          <div class="text-center py-5">
+            <i style="font-size: 3rem;" class="bi bi-briefcase text-muted"></i>
+            <h5 class="mt-3 text-muted">No listings have been published yet.</h5>
+          </div>
+          <% } else { %>
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Company</th>
+                    <th>Domain</th>
+                    <th>Eligibility</th>
+                    <th>Duration</th>
+                    <th>Paid</th>
+                    <th>Mode</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% for (var j=0; j < currentListings.length; j +=1) { var listing=currentListings[j]; %>
+                    <tr>
+                      <td class="fw-bold">
+                        <%= listing.company_name %>
+                      </td>
+                      <td>
+                        <%= listing.domain %>
+                      </td>
+                      <td>
+                        <%= listing.eligibility %>
+                      </td>
+                      <td>
+                        <%= listing.duration %>
+                      </td>
+                      <td>
+                        <% var payCheck=listing.paid_or_unpaid.toLowerCase(); %>
+                          <% if (payCheck==='paid' ) { %>
+                            <span
+                              class="badge bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill">Paid</span>
+                            <% } else { %>
+                              <span
+                                class="badge bg-danger-subtle border border-danger-subtle text-danger-emphasis rounded-pill">Unpaid</span>
+                              <% } %>
+                      </td>
+                      <td>
+                        <%= listing.internship_mode %>
+                      </td>
+                      <td>
+                        <form method="POST" action="/delete_internship/<%= listing.id %>"
+                          onsubmit="return confirm('Remove this listing and all linked applications?');">
+                          <button class="btn btn-sm btn-outline-danger" type="submit" title="Remove Listing">
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </form>
+                      </td>
+                    </tr>
+                    <% } %>
+                </tbody>
+              </table>
+            </div>
+            <% } %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,103 @@
+<% /* Determine viewer capabilities from session context */ var authenticated=(locals.user !=null); var
+  isProfessor=authenticated && (locals.user.role==='faculty' ); var isPupil=authenticated &&
+  (locals.user.role==='student' ); /* Safely reference passed-in internship data */ var opportunities=(typeof
+  internships !=='undefined' && internships) ? internships : []; var totalCount=opportunities.length; var
+  isEmpty=(totalCount < 1); %>
+
+  <div class="content-banner d-flex justify-content-between align-items-center mb-4">
+    <h2 class="primary-title mb-0">Available Internships</h2>
+    <% if (isProfessor) { %>
+      <a href="/post" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i>Post Internship
+      </a>
+      <% } %>
+  </div>
+
+  <div class="row g-4">
+    <% if (isEmpty) { %>
+      <div class="col-12 py-5 text-center">
+        <i style="font-size: 3rem;" class="bi bi-briefcase text-muted mb-3"></i>
+        <h4 class="text-muted">No Internships Available</h4>
+        <% if (isProfessor) { %>
+          <p class="text-muted">
+            Nothing here yet — <a href="/post">create a new listing</a>.
+          </p>
+          <% } else if (isPupil) { %>
+            <p class="text-muted">
+              Internships will appear here once faculty post them.
+            </p>
+            <% } else { %>
+              <p class="text-muted mb-3">
+                Sign in to browse or post internship opportunities!
+              </p>
+              <a class="btn btn-primary" href="/login">Login Now</a>
+              <% } %>
+      </div>
+      <% } else { %>
+        <% for (var idx=0; idx < totalCount; idx +=1) { var item=opportunities[idx]; var
+          payType=item.paid_or_unpaid.toLowerCase(); var isCompensated=(payType==='paid' ); %>
+          <div class="col-md-4 mb-4">
+            <div class="card opportunity-tile h-100">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <h4 title="<%= item.company_name %>" class="mb-0 fw-bold text-truncate">
+                    <%= item.company_name %>
+                  </h4>
+                  <% if (isCompensated) { %>
+                    <span
+                      class="badge bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill">Paid</span>
+                    <% } else { %>
+                      <span
+                        class="badge bg-danger-subtle border border-danger-subtle text-danger-emphasis rounded-pill">Unpaid</span>
+                      <% } %>
+                </div>
+
+                <p class="text-muted mb-4 small">
+                  <i class="bi bi-briefcase me-1"></i>Domain: <%= item.domain %>
+                </p>
+
+                <div class="mb-4">
+                  <% var infoItems=[ { caption: 'Eligibility' , content: item.eligibility }, { caption: 'Duration' ,
+                    content: item.duration }, { caption: 'Mode' , content: item.internship_mode } ]; for (var k=0; k <
+                    infoItems.length; k +=1) { var row=infoItems[k]; %>
+                    <div class="d-flex justify-content-between<%= (k < infoItems.length - 1) ? ' mb-2' : '' %>">
+                      <span class="text-muted small">
+                        <%= row.caption %>
+                      </span>
+                      <span class="fw-medium small">
+                        <%= row.content %>
+                      </span>
+                    </div>
+                    <% } %>
+                </div>
+
+                <div class="mt-auto">
+                  <hr class="my-3">
+                  <% if (isPupil) { %>
+                    <form action="/apply/<%= item.id %>" method="POST" enctype="multipart/form-data">
+                      <div class="mb-3">
+                        <label class="form-label small">College Mentor (Faculty Mentor)</label>
+                        <input class="form-control form-control-sm" type="text" name="faculty_mentor"
+                          placeholder="e.g. Dr. Smith" required>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label small">Resume (PDF Only)</label>
+                        <input class="form-control form-control-sm" type="file" name="resume" accept="application/pdf"
+                          required>
+                      </div>
+                      <button class="btn btn-primary btn-sm w-100">Apply Now</button>
+                    </form>
+                    <% } else if (isProfessor) { %>
+                      <p class="text-muted text-center small mb-0">
+                        Students can submit applications for this listing.
+                      </p>
+                      <% } else { %>
+                        <a class="btn btn-outline-primary btn-sm w-100" href="/login">Login to Apply</a>
+                        <% } %>
+                </div>
+              </div>
+            </div>
+          </div>
+          <% } %>
+            <% } %>
+  </div>

@@ -1,0 +1,212 @@
+Dashboard - Internship Portal
+
+<div class="content-banner">
+  <h2 class="primary-title">Internship Dashboard</h2>
+  <a href="/report" class="btn btn-primary">
+    <i class="bi bi-download me-2"></i>Export Report
+  </a>
+</div>
+
+<% /* Assemble metric card descriptors as an array */ var summaryCards=[ { label: 'Total Applications' , value: total,
+  highlight: '' }, { label: 'Completed' , value: completed, highlight: 'color: var(--secondary);' }, {
+  label: 'Paid Internships' , value: paid, highlight: 'color: var(--warning);' }, { label: 'Unpaid Internships' , value:
+  unpaid, highlight: 'color: var(--danger);' } ]; %>
+  <div class="row g-4 mb-5">
+    <% for (var sc=0; sc < summaryCards.length; sc +=1) { var cardInfo=summaryCards[sc]; %>
+      <div class="col-md-3">
+        <div class="card h-100">
+          <div class="stat-widget">
+            <h5>
+              <%= cardInfo.label %>
+            </h5>
+            <% if (cardInfo.highlight.length> 0) { %>
+              <h2 style="<%= cardInfo.highlight %>">
+                <%= cardInfo.value %>
+              </h2>
+              <% } else { %>
+                <h2>
+                  <%= cardInfo.value %>
+                </h2>
+                <% } %>
+          </div>
+        </div>
+      </div>
+      <% } %>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-md-6">
+      <div class="card p-4 h-100 position-relative">
+        <div class="d-flex justify-content-between align-items-start mb-4">
+          <h5 style="font-weight: 600; font-size: 0.875rem;" class="text-muted text-uppercase mb-0">Paid vs Unpaid</h5>
+          <button class="btn btn-sm btn-outline-secondary"
+            onclick="exportChart('compensationDonut', 'paid_unpaid_chart.png')">
+            <i class="bi bi-download me-1"></i>Export Graph
+          </button>
+        </div>
+        <div style="position: relative; height: 300px; width: 100%; display: flex; justify-content: center;">
+          <canvas id="compensationDonut"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card p-4 h-100 position-relative">
+        <div class="d-flex justify-content-between align-items-start mb-4">
+          <h5 style="font-weight: 600; font-size: 0.875rem;" class="text-muted text-uppercase mb-0">Application Modes
+          </h5>
+          <button class="btn btn-sm btn-outline-secondary"
+            onclick="exportChart('deliveryModePie', 'mode_distribution_chart.png')">
+            <i class="bi bi-download me-1"></i>Export Graph
+          </button>
+        </div>
+        <div style="position: relative; height: 300px; width: 100%; display: flex; justify-content: center;">
+          <canvas id="deliveryModePie"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mt-2 mb-4">
+    <div class="col-md-12">
+      <div class="card p-4 h-100 position-relative">
+        <div class="d-flex justify-content-between align-items-start mb-4">
+          <h5 style="font-weight: 600; font-size: 0.875rem;" class="text-muted text-uppercase mb-0">Domain Distribution
+          </h5>
+          <button class="btn btn-sm btn-outline-secondary"
+            onclick="exportChart('domainBarChart', 'domain_distribution_chart.png')">
+            <i class="bi bi-download me-1"></i>Export Graph
+          </button>
+        </div>
+        <div style="position: relative; height: 350px; width: 100%; display: flex; justify-content: center;">
+          <canvas id="domainBarChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* Export chart to base64 image */
+    function exportChart(canvasId, fileName) {
+      var chart = Chart.getChart(canvasId);
+      if (chart) {
+        var a = document.createElement('a');
+        a.href = chart.toBase64Image();
+        a.download = fileName;
+        a.click();
+      }
+    }
+
+    /* Chart initialization routine */
+    function drawDashboardCharts() {
+      var sharedOpts = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { font: { family: 'Inter' } }
+          }
+        }
+      };
+
+      /* Prevent array initialization errors by passing JSON raw */
+      var paidData = <%- paid_unpaid_data %>;
+      var modeData = <%- mode_data %>;
+      var domainData = <%- domain_data %>;
+
+      var paidLabels = [];
+      var paidValues = [];
+      paidData.forEach(function(row) {
+        var lbl = row.paid_or_unpaid || 'Unknown';
+        paidLabels.push(lbl.charAt(0).toUpperCase() + lbl.slice(1));
+        paidValues.push(row.count);
+      });
+
+      var modeLabels = [];
+      var modeValues = [];
+      modeData.forEach(function(row) {
+        var lbl = row.internship_mode || 'Unknown';
+        modeLabels.push(lbl.charAt(0).toUpperCase() + lbl.slice(1));
+        modeValues.push(row.count);
+      });
+
+      var domainLabels = [];
+      var domainValues = [];
+      domainData.forEach(function(row) {
+        domainLabels.push(row.domain || 'Unknown');
+        domainValues.push(row.count);
+      });
+
+      var bgColors = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4'];
+
+      /* Compensation doughnut */
+      var compCanvas = document.getElementById('compensationDonut');
+      if (compCanvas !== null) {
+        new Chart(compCanvas, {
+          type: 'doughnut',
+          data: {
+            labels: paidLabels,
+            datasets: [{
+              data: paidValues,
+              backgroundColor: ['#10B981', '#EF4444', '#F59E0B'],
+              borderWidth: 0,
+              hoverOffset: 4
+            }]
+          },
+          options: sharedOpts
+        });
+      }
+
+      /* Delivery modes pie */
+      var modeCanvas = document.getElementById('deliveryModePie');
+      if (modeCanvas !== null) {
+        new Chart(modeCanvas, {
+          type: 'pie',
+          data: {
+            labels: modeLabels,
+            datasets: [{
+              data: modeValues,
+              backgroundColor: ['#4F46E5', '#F59E0B', '#10B981'],
+              borderWidth: 0,
+              hoverOffset: 4
+            }]
+          },
+          options: sharedOpts
+        });
+      }
+
+      /* Domain Distribution Bar Chart */
+      var domainCanvas = document.getElementById('domainBarChart');
+      if (domainCanvas !== null) {
+        new Chart(domainCanvas, {
+          type: 'bar',
+          data: {
+            labels: domainLabels,
+            datasets: [{
+              label: 'Students',
+              data: domainValues,
+              backgroundColor: bgColors,
+              borderRadius: 4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false }
+            },
+            scales: {
+              y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+          }
+        });
+      }
+    }
+
+    /* Trigger rendering when DOM is ready */
+    if (document.readyState !== 'loading') {
+      drawDashboardCharts();
+    } else {
+      document.addEventListener('DOMContentLoaded', drawDashboardCharts);
+    }
+  </script>
